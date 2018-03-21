@@ -62,21 +62,17 @@ class CheckController extends Controller {
 
     public function getToken() {
     	// S('access_token', null);
-    	$token = S('access_token');
+    	// $token = S('access_token');
     	$appid="wxcc78aebc2541eb2d";
 		$appsecret="39f1b356e2454e3695b77029c80519aa";
 		// var_dump($token);die;
-		if( !$token ) {
-			$ch = curl_init();
-			$url = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=' . $appid . '&secret=' . $appsecret;
-			curl_setopt($ch, CURLOPT_URL, $url);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-			$output = curl_exec($ch);
-			curl_close($ch);
-			$token = json_decode($output, true)['access_token'];
-			S('access_token', $token, 3000);
-			// var_dump(json_decode($output));die;
-		}
+		$ch = curl_init();
+		$url = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=' . $appid . '&secret=' . $appsecret;
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		$output = curl_exec($ch);
+		curl_close($ch);
+		$token = json_decode($output, true)['access_token'];
 		return $token;
     }
 
@@ -100,7 +96,7 @@ class CheckController extends Controller {
     	$appid="wxcc78aebc2541eb2d";
 		$appsecret="39f1b356e2454e3695b77029c80519aa";
 
-		$openid = S('openid');
+		// $openid = S('openid');
 		$token = $this -> getToken();
 
 		if(!$openid) {
@@ -114,7 +110,7 @@ class CheckController extends Controller {
 			$openid = json_decode($output, true)['openid'];
 			S('openid', $openid, 3000);
 		}
-		
+		// var_dump($openid);die;
 		$ch2 = curl_init();
 		$url2 = 'https://api.weixin.qq.com/cgi-bin/user/info?access_token='. $token .'&openid='. $openid .'&lang=zh_CN';
 		curl_setopt($ch2, CURLOPT_URL, $url2);
