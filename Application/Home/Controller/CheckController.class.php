@@ -111,13 +111,37 @@ class CheckController extends Controller {
 			S('openid', $openid, 3000);
 		}
 		// var_dump($openid);die;
+
 		$ch2 = curl_init();
 		$url2 = 'https://api.weixin.qq.com/cgi-bin/user/info?access_token='. $token .'&openid='. $openid .'&lang=zh_CN';
 		curl_setopt($ch2, CURLOPT_URL, $url2);
 		curl_setopt($ch2, CURLOPT_RETURNTRANSFER, 1);
 		$output2 = curl_exec($ch2);
 		curl_close($ch2);
-		var_dump($output2);
+		$info = json_decode($output2, true);
+
+		$checkUser = M('user') -> where('openid = %d', $info['openid']) -> find();
+		if(!$checkUser) {
+			$addUser['openid'] = $info['openid'];
+			M('user') -> data($addUser) -> add();
+			$info['isVip'] = 'no';
+			var_dump($info);
+			$this -> assign('info', $info);
+			$this -> display('index');
+		} else {
+			if($checkUser['username']) {
+				$info['isVip'] = 'yes';
+			} else {
+				$info['isVip'] = 'no';
+			}
+			var_dump($info);
+			$this -> assign('info', $info);
+			$this -> display('index');
+		}
+
+		// var_dump($info);
+		// $this -> assign('info', $info);
+		// $this -> display('index');
     }
 
 }

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width">
+	<title>shouye</title>
+</head>
+<body>
+	<h2>您好，{$info['nickname']}</h2>
+	<img src="{$info['headimgurl']}" alt="">
+	<button id="btn" isVip="{$info['isVip']}">提交申请</button>
+	<script>
+		var oBtn = document.getElementById('btn');
+		oBtn.addEventListener('click', function() {
+			if(this.getAttribute('isVip') === 'no') {
+				alert('您还不是会员，请联系我们');
+				return;
+			} else {
+				alert('尊敬的会员，您好');
+			}
+		}, false);
+	</script>
+</body>
+</html>
