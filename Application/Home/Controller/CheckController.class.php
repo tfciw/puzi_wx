@@ -99,17 +99,14 @@ class CheckController extends Controller {
 		// $openid = S('openid');
 		$token = $this -> getToken();
 
-		if(!$openid) {
-			$ch = curl_init();
-			$url = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid='. $appid .'&secret='. $appsecret .'&code='. $code .'&grant_type=authorization_code';
-			curl_setopt($ch, CURLOPT_URL, $url);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-			$output = curl_exec($ch);
-			curl_close($ch);
+		$ch = curl_init();
+		$url = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid='. $appid .'&secret='. $appsecret .'&code='. $code .'&grant_type=authorization_code';
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		$output = curl_exec($ch);
+		curl_close($ch);
 
-			$openid = json_decode($output, true)['openid'];
-			S('openid', $openid, 3000);
-		}
+		$openid = json_decode($output, true)['openid'];
 		// var_dump($openid);die;
 
 		$ch2 = curl_init();
@@ -121,27 +118,20 @@ class CheckController extends Controller {
 		$info = json_decode($output2, true);
 
 		$checkUser = M('user') -> where('openid = %d', $info['openid']) -> find();
-		if(!$checkUser) {
+		// var_dump($checkUser);die;
+		if(is_null($checkUser)) {
 			$addUser['openid'] = $info['openid'];
 			M('user') -> data($addUser) -> add();
 			$info['isVip'] = 'no';
-			var_dump($info);
-			$this -> assign('info', $info);
-			$this -> display('index');
+			return $info;
 		} else {
 			if($checkUser['username']) {
 				$info['isVip'] = 'yes';
 			} else {
 				$info['isVip'] = 'no';
 			}
-			var_dump($info);
-			$this -> assign('info', $info);
-			$this -> display('index');
+			return $info;
 		}
-
-		// var_dump($info);
-		// $this -> assign('info', $info);
-		// $this -> display('index');
     }
 
 }

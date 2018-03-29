@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>学长的电脑铺子</title>
+	<link rel="stylesheet" href="__PUBLIC__/css/main.css">
+</head>
+<body>
+	<!-- <header>
+		<p class="title">学长的电脑铺子</p>
+	</header> -->
+	{$data['isVip']}
+	<section class="info">
+		<span class="user_name">你好，{$data['nickname']}，欢迎使用检修系统</span>
+		<img src="{$data['headimgurl']}" alt="" class="head_img">
+	</section>
+	<section class="main">
+		<section>
+			<a href="javascript:;" class="submit_btn" openid="{$data['openid']}">提交申请</a>
+		</section>
+		<section class="records">
+			<section class="top">
+				<p class="title">申请记录</p>
+				<a href="javscript:;" class="show_more">查看更多>></a>
+			</section>
+			<section class="no_wrapper">
+				你还没有申请记录...
+			</section>
+			<section class="item_wrapper">
+				正在查询信息……
+			</section>
+		</section>
+	</section>
+	<section class="apply_mask">
+		<section class="apply_wrapper">
+			<input type="hidden" name="openid" class="openid" value="{$data['openid']}">
+			<input type="text" name="pc" class="pc" placeholder="请输入机型">
+			<input type="text" name="address" class="address" placeholder="请输入地址">
+			<textarea name="info" class="info" placeholder="请输入详细信息"></textarea>
+			<button class="apply_btn">提 交</button>
+		</section>
+	</section>
+	<script src="http://code.jquery.com/jquery-2.2.4.min.js"></script>
+	<script>
+		$(function() {
+			$.ajax({
+				url: 'http://repaire.dnpuzi.com/home/index/getOrderList',
+				type: 'post',
+				data:　{
+					openid: $('.submit_btn').attr('openid')
+					// openid: 'moneyinthebank'
+				},
+				success: function(data) {
+					if(data.length > 0) {
+						var str = '',
+						len = data.length;
+						for(let i=0; i<len; i++) {
+							str += `
+							<section class="item">
+								<section class="item_info">
+									<span class="title">维修机型：</span>
+									${data[i].pc}
+								</section>
+								<section class="item_info">
+									<span class="title">地址：</span>
+									${data[i].address}
+								</section>
+								<section class="item_info">
+									<span class="title">信息：</span>
+									${data[i].info}
+								</section>
+							</section>
+							`
+						}
+						$('.item_wrapper').html(str);
+					} else {
+						$('.records').addClass('hidden');
+					}
+				}
+			});
+			$('apply_mask').css('height', document.documentElement.clientHeight + 'px' );
+			$('.submit_btn').on('click', function() {
+				var openid = this.getAttribute('openid');
+				// console.log(openid);
+				$.ajax({
+					url: 'http://repaire.dnpuzi.com/home/index/checkIsVip',
+					data: {
+						openid: openid
+					},
+					type: 'post',
+					success: function(data) {
+						if(data == 'not_vip') {
+							alert('你还不是会员，请联系我们');
+						} else {
+							$('.apply_mask').fadeToggle();
+						}
+					}
+				})
+			});
+
+			$('.apply_btn').on('click', function() {
+				var openid = $('.openid').val();
+				var pc = $('.pc').val();
+				var address  = $('.address').val();
+				var info = $('textarea.info').val();
+				if( pc == '' ) {
+					alert('输入信息不能为空');
+					return;
+				}
+				if( address == '' ) {
+					alert('输入信息不能为空');
+					return;
+				}
+				if( info == '' ) {
+					alert('输入信息不能为空');
+					return;
+				}
+				$('.pc').val('');
+				$('.address').val('');
+				$('.info').val('');
+				$('.apply_mask').fadeToggle();
+				$.ajax({
+					url:　'http://repaire.dnpuzi.com/home/index/addOrder',
+					type: 'post',
+					data: {
+						openid: openid,
+						pc: pc,
+						address: address,
+						info: info
+					},
+					success: function(data) {
+						alert(data);
+					}
+				})
+			})
+		});
+	</script>
+</body>
+</html>

@@ -2,23 +2,138 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width">
-	<title>shouye</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>学长的电脑铺子</title>
+	<link rel="stylesheet" href="__PUBLIC__/css/main.css">
 </head>
 <body>
-	<h2>您好，{$info['nickname']}</h2>
-	<img src="{$info['headimgurl']}" alt="">
-	<button id="btn" isVip="{$info['isVip']}">提交申请</button>
+	<!-- <header>
+		<p class="title">学长的电脑铺子</p>
+	</header> -->
+	<section class="info">
+		<span class="user_name">你好，{$info['nickname']}，欢迎使用检修系统</span>
+		<img src="{$info['headimgurl']}" alt="" class="head_img">
+	</section>
+	<section class="main">
+		<section>
+			<a href="javascript:;" class="submit_btn" isVip="{$info['isVip']}">提交申请</a>
+		</section>
+		<section class="records">
+			<section class="top">
+				<p class="title">申请记录</p>
+				<a href="javscript:;" class="show_more">查看更多>></a>
+			</section>
+			<section class="no_wrapper">
+				你还没有申请记录...
+			</section>
+			<section class="item_wrapper">
+				<section class="item">
+					<section class="item_info">
+						<span class="title">维修机型：</span>
+						PC_联想_i7
+					</section>
+					<section class="item_info">
+						<span class="title">时 间：</span>
+						2018年3月26日
+					</section>
+					<section class="item_info">
+						<span class="title">维修人员：</span>
+						谭启辉
+					</section>
+				</section>
+				<section class="item">
+					<section class="item_info">
+						<span class="title">维修机型：</span>
+						PC_联想_i7
+					</section>
+					<section class="item_info">
+						<span class="title">时 间：</span>
+						2018年3月26日
+					</section>
+					<section class="item_info">
+						<span class="title">维修人员：</span>
+						谭启辉
+					</section>
+				</section>
+				<section class="item">
+					<section class="item_info">
+						<span class="title">维修机型：</span>
+						PC_联想_i7
+					</section>
+					<section class="item_info">
+						<span class="title">时 间：</span>
+						2018年3月26日
+					</section>
+					<section class="item_info">
+						<span class="title">维修人员：</span>
+						谭启辉
+					</section>
+				</section>
+				<section class="item">
+					<section class="item_info">
+						<span class="title">维修机型：</span>
+						PC_联想_i7
+					</section>
+					<section class="item_info">
+						<span class="title">时 间：</span>
+						2018年3月26日
+					</section>
+					<section class="item_info">
+						<span class="title">维修人员：</span>
+						谭启辉
+					</section>
+				</section>
+				<section class="item">
+					<section class="item_info">
+						<span class="title">维修机型：</span>
+						PC_联想_i7
+					</section>
+					<section class="item_info">
+						<span class="title">时 间：</span>
+						2018年3月26日
+					</section>
+					<section class="item_info">
+						<span class="title">维修人员：</span>
+						谭启辉
+					</section>
+				</section>
+				<section class="item">
+					<section class="item_info">
+						<span class="title">维修机型：</span>
+						PC_联想_i7
+					</section>
+					<section class="item_info">
+						<span class="title">时 间：</span>
+						2018年3月26日
+					</section>
+					<section class="item_info">
+						<span class="title">维修人员：</span>
+						谭启辉
+					</section>
+				</section>
+			</section>
+		</section>
+	</section>
+	<section class="apply_mask">
+		<section class="apply_wrapper">
+			<input type="text" class="model" placeholder="请输入机型">
+			<input type="text" class="address" value="{$info['address']}" placeholder="请输入地址">
+			<textarea name="" id="" cols="30" rows="10" class="info" placeholder="请输入详细信息"></textarea>
+			<button class="apply_btn">提 交</button>
+		</section>
+	</section>
+	<script src="http://code.jquery.com/jquery-2.2.4.min.js"></script>
 	<script>
-		var oBtn = document.getElementById('btn');
-		oBtn.addEventListener('click', function() {
-			if(this.getAttribute('isVip') === 'no') {
-				alert('您还不是会员，请联系我们');
-				return;
-			} else {
-				alert('尊敬的会员，您好');
-			}
-		}, false);
+		$(function() {
+			$('apply_mask').css('height', document.documentElement.clientHeight + 'px' );
+			$('.submit_btn').on('click', function() {
+				if(this.getAttribute('isVip') == 'no') {
+					alert('你还不是会员，不能提交申请，请联系18983423499');
+				} else {
+
+				}
+			});
+		});
 	</script>
 </body>
 </html>
