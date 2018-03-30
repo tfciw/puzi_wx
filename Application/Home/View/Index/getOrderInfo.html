@@ -6,12 +6,13 @@
 	<title>getOrderInfo</title>
 </head>
 <body>
-	订单id：{$data.id} <br>
+	订单id：{$data.randomid} <br>
 	机型：{$data.pc} <br>
 	地址：{$data.address} <br>
 	信息：{$data.info} <br>
 	<input type="text" name="repairtor" value="肖小平" class="repairtor" placeholder="输入维修人员" /><br>
-	<button orderid="{$data.id}">确认去检修</button>
+	<input type="hidden" name="openid" class="openid" value="{$data.openid}">
+	<button orderid="{$data.randomid}">确认去检修</button>
 	<script src="http://code.jquery.com/jquery-2.2.4.min.js"></script>
 	<script>
 		$(function() {
@@ -21,7 +22,8 @@
 					type: 'post',
 					data: {
 						orderid: $('button').attr('orderid'),
-						repairtor: $('.repairtor').val()
+						repairtor: $('.repairtor').val(),
+						openid: $('.openid').val()
 					},
 					success: function(data) {
 						alert(data);

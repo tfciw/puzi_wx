@@ -14,7 +14,7 @@ class IndexController extends Controller {
        	}
     }
 
-    public function getToken() {
+    public function getToken() { //获取token，这是每一次访问微信api的重要依据
     	// S('access_token', null);
     	// $token = S('access_token');
     	$appid="wxcc78aebc2541eb2d";
@@ -30,7 +30,7 @@ class IndexController extends Controller {
 		return $token;
     }
 
-    public function getInfo() {
+    public function getInfo() {  //获取微信信息
     	$user_info = cookie('user_info');
     	if( is_null($user_info) ) {
     		$code = $_GET['code'];
@@ -77,8 +77,8 @@ class IndexController extends Controller {
     }
 
     public function checkIsVip() { //用户点击按钮先判断他是不是会员
-    	$openid = $_POST['openid'];
-    	$user = M('user') -> where('openid = %d', $openid) -> find();
+    	$map['openid'] = $_POST['openid'];
+    	$user = M('user') -> where($map) -> find();
     	if(is_null($user['username'])) {
     		$data = 'not_vip';
     		$this -> ajaxReturn($data); 
@@ -87,6 +87,9 @@ class IndexController extends Controller {
 
     public function addOrder() { //添加订单
     	$order_info = I('post.');
+        $order_info['date'] = date('Y-m-d h:i:s');
+        $randomString = $this -> getRandomString();
+        $order_info['randomid'] = date('Ymdhis') . $randomString;
     	$order_id = M('order') -> data($order_info) -> add();
     	$this -> ajaxReturn('订单id：' . $order_id .',提交成功，我们会尽快联系你');
     }
@@ -99,8 +102,7 @@ class IndexController extends Controller {
     }
 
     public function getOrderInfo() { //维修人员获取订单信息
-    	$orderid = I('get.id');
-    	$map['id'] = $orderid;
+    	$map['id'] = I('get.id');
     	$order_info = M('order') -> where($map) -> find();
     	$this -> assign('data', $order_info);
     	$this -> display('getOrderInfo');
@@ -110,6 +112,43 @@ class IndexController extends Controller {
     	$map['id'] = I('post.orderid');
     	$map['repairtor'] = I('post.repairtor');
     	$result = M('order') -> save($map);
-    	$this -> ajaxReturn('维修人员确认成功');
+
+        $this -> sendTmlMsg(I('post.openid'), I('post.orderid'), I('post.repairtor'));
     }
+
+    public function sendTmlMsg($openid, $orderid, $repairtor) { //发送模板信息
+        $token = $this -> getToken();
+        $url = 'https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=' . $token;
+        $array = array(
+            'touser' => '' . $openid,
+            'template_id' => 'cjg2rYFQpLo6Cqao35ZoOy6lBTVMbIsJs6668wdp8cw',
+            'url' => 'www.baidu.com',
+            'data' => array(
+                'first' => array( 'value' => '您好，您提交的维修申请已审核', 'color' => '#173177' ),
+                'track_number' => array( 'value' => '' . $orderid, 'color' => '#173177' ),
+                'asp_name' => array( 'value' => '' . $repairtor, 'color' => '#df5e5e' ),
+                'asp_tel' => array( 'value' => '021-654321xx', 'color' => '#173177' ),
+                'remark' => array( 'value' => '请回复“rgfw”', 'color' => '#4c57e4' ),
+            ),
+        );
+        $postJson = json_encode($array);
+        // var_dump($postJson);die;
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL,$url);
+        curl_setopt($ch2, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $postJson);
+        $output = curl_exec($ch);
+        curl_close($ch);
+    }
+
+    function getRandomString($len=12) { //获取随机数
+        $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        mt_srand(10000000*(double)microtime());
+        for ($i = 0, $str = '', $lc = strlen($chars)-1; $i < $len; $i++){
+            $str .= $chars[mt_rand(0, $lc)];  
+        }
+        return $str;
+    }
+
 }
