@@ -33,12 +33,13 @@
 		</section>
 	</section>
 	<section class="apply_mask">
-		<section class="apply_wrapper">
+		<section class="apply_wrapper" style="position: relative;">
 			<input type="hidden" name="openid" class="openid" value="{$data['openid']}">
 			<input type="text" name="pc" class="pc" placeholder="请输入机型">
 			<input type="text" name="address" class="address" placeholder="请输入地址">
 			<textarea name="info" class="info" placeholder="请输入详细信息"></textarea>
 			<button class="apply_btn">提 交</button>
+			<a href="javacript:void(0);" class="close" style="position: absolute;right: 10px;bottom: 10px;">取消</a>
 		</section>
 	</section>
 	<script src="http://code.jquery.com/jquery-2.2.4.min.js"></script>
@@ -59,15 +60,23 @@
 							str += `
 							<section class="item">
 								<section class="item_info">
+									<span class="title">订单编号：</span>
+									${data[i].randomid}
+								</section>
+								<section class="item_info">
 									<span class="title">维修机型：</span>
 									${data[i].pc}
 								</section>
 								<section class="item_info">
-									<span class="title">地址：</span>
+									<span class="title">维修员：</span>
+									${data[i].repairtor ? data[i].repairtor : '待确定' }
+								</section>
+								<section class="item_info">
+									<span class="title">地 址：</span>
 									${data[i].address}
 								</section>
 								<section class="item_info">
-									<span class="title">信息：</span>
+									<span class="title">信 息：</span>
 									${data[i].info}
 								</section>
 							</section>
@@ -90,13 +99,18 @@
 					},
 					type: 'post',
 					success: function(data) {
+						// console.log(data);
 						if(data == 'not_vip') {
-							alert('你还不是会员，请联系我们');
+							alert('你还不是会员，请联系我们18008385331');
 						} else {
 							$('.apply_mask').fadeToggle();
 						}
 					}
 				})
+			});
+
+			$('.close').on('click', function() {
+				$('.apply_mask').fadeToggle();
 			});
 
 			$('.apply_btn').on('click', function() {

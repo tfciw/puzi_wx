@@ -11,8 +11,9 @@
 	地址：{$data.address} <br>
 	信息：{$data.info} <br>
 	<input type="text" name="repairtor" value="肖小平" class="repairtor" placeholder="输入维修人员" /><br>
+	<input type="hidden" name="randomid" class="randomid" value="{$data.randomid}">
 	<input type="hidden" name="openid" class="openid" value="{$data.openid}">
-	<button orderid="{$data.randomid}">确认去检修</button>
+	<button orderid="{$data.id}">确认去检修</button>
 	<script src="http://code.jquery.com/jquery-2.2.4.min.js"></script>
 	<script>
 		$(function() {
@@ -23,7 +24,8 @@
 					data: {
 						orderid: $('button').attr('orderid'),
 						repairtor: $('.repairtor').val(),
-						openid: $('.openid').val()
+						openid: $('.openid').val(),
+						randomid: $('.randomid').val()
 					},
 					success: function(data) {
 						alert(data);

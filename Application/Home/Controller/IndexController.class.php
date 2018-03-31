@@ -31,13 +31,13 @@ class IndexController extends Controller {
     }
 
     public function getInfo() {  //获取微信信息
-    	$user_info = cookie('user_info');
-    	if( is_null($user_info) ) {
+    	$user_info = cookie('user_info'); //获取cookie的用户微信信息
+        // var_dump($user_info);
+    	if( is_null($user_info) ) { //判断cookie是否为null，是的话就获取微信信息并判断是否添加数据库
     		$code = $_GET['code'];
 			$appid="wxcc78aebc2541eb2d";
 			$appsecret="39f1b356e2454e3695b77029c80519aa";
 
-			// $openid = S('openid');
 			$token = $this -> getToken();
 
 			$ch = curl_init();
@@ -48,7 +48,6 @@ class IndexController extends Controller {
 			curl_close($ch);
 
 			$openid = json_decode($output, true)['openid'];
-			// var_dump($openid);die;
 
 			$ch2 = curl_init();
 			$url2 = 'https://api.weixin.qq.com/cgi-bin/user/info?access_token='. $token .'&openid='. $openid .'&lang=zh_CN';
@@ -56,20 +55,25 @@ class IndexController extends Controller {
 			curl_setopt($ch2, CURLOPT_RETURNTRANSFER, 1);
 			$output2 = curl_exec($ch2);
 			curl_close($ch2);
-			$info = json_decode($output2, true);
-
-			$checkUser = M('user') -> where('openid = %d', $info['openid']) -> find();
-			// var_dump($checkUser);die;
+			$info = json_decode($output2, true);//解码接口返回的数据
+            // var_dump($info);
+            $map['openid'] = $info['openid']; //组合查询条件数组
+			$checkUser = M('user') -> where($map) -> find();
+			// var_dump($checkUser);
 			if(is_null($checkUser)) {
+                var_dump('没有进数据库');
 				$addUser['openid'] = $info['openid'];
-				M('user') -> data($addUser) -> add();
+                // var_dump($addUser);
+				$result = M('user') -> add($addUser);
+                // var_dump($result); //输出新添加的id
 				cookie('user_info', $info);
 			} else {
 				cookie('user_info', $info);
 			}
 			$this -> assign('data', $info);
 			$this -> display('index');
-    	} else {
+    	} else { //cookie里有用户信息就直接读取跳转首页
+            // var_dump($user_info);
     		$this -> assign('data', $user_info);
     		$this -> display('index');
     	}
@@ -91,12 +95,21 @@ class IndexController extends Controller {
         $randomString = $this -> getRandomString();
         $order_info['randomid'] = date('Ymdhis') . $randomString;
     	$order_id = M('order') -> data($order_info) -> add();
-    	$this -> ajaxReturn('订单id：' . $order_id .',提交成功，我们会尽快联系你');
+
+        // //向维修人员发送审核信息
+        // $openid = 'oAFMW1G4JcOVZwxvlSI-yxrX7daQ';
+        // $randomid = $randomString;
+        // $repairtor = '待确定';
+        // $tourl = 'http://repaire.dnpuzi.com/home/index/getOrderInfo?id=' . $orderid;
+        // $this -> sendTmlMsg($openid, $randomid, $repairtor, $tourl);
+        // //结束
+
+        //ajax返回给页面参数
+        $this -> ajaxReturn('维修申请提交成功，我们会尽快联系您！');
     }
 
     public function getOrderList() { //用户首页获取他的订单信息
-    	$openid = I('post.openid');
-    	$map['openid'] = $openid;
+    	$map['openid'] = I('post.openid');
     	$order_list = M('order') -> where($map) -> select();
     	$this -> ajaxReturn($order_list);
     }
@@ -113,22 +126,22 @@ class IndexController extends Controller {
     	$map['repairtor'] = I('post.repairtor');
     	$result = M('order') -> save($map);
 
-        $this -> sendTmlMsg(I('post.openid'), I('post.orderid'), I('post.repairtor'));
+        $this -> sendTmlMsg(I('post.openid'), I('post.randomid'), I('post.repairtor'));
     }
 
-    public function sendTmlMsg($openid, $orderid, $repairtor) { //发送模板信息
+    public function sendTmlMsg($openid, $randomid, $repairtor, $tourl) { //发送模板信息
         $token = $this -> getToken();
         $url = 'https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=' . $token;
         $array = array(
             'touser' => '' . $openid,
             'template_id' => 'cjg2rYFQpLo6Cqao35ZoOy6lBTVMbIsJs6668wdp8cw',
-            'url' => 'www.baidu.com',
+            'url' => '' . $tourl,
             'data' => array(
                 'first' => array( 'value' => '您好，您提交的维修申请已审核', 'color' => '#173177' ),
-                'track_number' => array( 'value' => '' . $orderid, 'color' => '#173177' ),
+                'track_number' => array( 'value' => '' . $randomid, 'color' => '#173177' ),
                 'asp_name' => array( 'value' => '' . $repairtor, 'color' => '#df5e5e' ),
-                'asp_tel' => array( 'value' => '021-654321xx', 'color' => '#173177' ),
-                'remark' => array( 'value' => '请回复“rgfw”', 'color' => '#4c57e4' ),
+                'asp_tel' => array( 'value' => '18008385331', 'color' => '#173177' ),
+                'remark' => array( 'value' => '如有问题请咨询18008385331', 'color' => '#4c57e4' ),
             ),
         );
         $postJson = json_encode($array);
