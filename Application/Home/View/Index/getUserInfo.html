@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>getUserInfo</title>
+</head>
+<body>
+	微信名：{$data.wxname}  <br><br>
+	<form action="{:U('makeHimVip')}" method="post">
+		<input type="hidden" name="id" value="{$data['id']}">
+		用户名: <input type="" name="username" value="{$data['username']}"> <br><br>
+		地址: <input type="" name="address" value="{$data['address']}"> <br><br>
+		电话: <input type="" name="tel" value="{$data['tel']}"> <br><br>
+		<input type="submit" value="修改信息">
+	</form>
+</body>
+</html>

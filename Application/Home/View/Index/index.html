@@ -144,7 +144,15 @@
 						info: info
 					},
 					success: function(data) {
-						alert(data);
+						$.ajax({
+							url: 'http://repaire.dnpuzi.com/home/index/noticeRepairtor',
+							type: 'post',
+							data: {
+								id: data['order_id']
+							}
+						});
+						alert(data['msg']);
+						window.location.reload();
 					}
 				})
 			})

@@ -61,9 +61,11 @@ class IndexController extends Controller {
 			$checkUser = M('user') -> where($map) -> find();
 			// var_dump($checkUser);
 			if(is_null($checkUser)) {
-                var_dump('没有进数据库');
+                // var_dump('没有进数据库');
 				$addUser['openid'] = $info['openid'];
-                // var_dump($addUser);
+                $randomString = $this -> getRandomString();
+                $addUser['randomid'] = date('Ymdhis') . $randomString;
+                $addUser['wxname'] = $info['nickname'];
 				$result = M('user') -> add($addUser);
                 // var_dump($result); //输出新添加的id
 				cookie('user_info', $info);
@@ -89,23 +91,48 @@ class IndexController extends Controller {
     	}  		
     }
 
+    public function showUserList() {
+        $userList = M('user') -> order('id desc') -> select();
+        $this -> assign('data', $userList);
+        $this -> display('showUserList');
+
+    }
+
+    public function getUserInfo() {
+        $map['id'] = I('get.id');
+        $user_info = M('user') -> where($map) -> find();
+        $this -> assign('data', $user_info);
+        $this -> display('getUserInfo');
+    }
+
+    public function makeHimVip() {
+        $map = I('post.');
+        $result = M('user') -> save($map);
+        header("Content-type: text/html; charset=utf-8"); 
+        var_dump('修改成功！');
+    }
+
     public function addOrder() { //添加订单
     	$order_info = I('post.');
         $order_info['date'] = date('Y-m-d h:i:s');
         $randomString = $this -> getRandomString();
         $order_info['randomid'] = date('Ymdhis') . $randomString;
     	$order_id = M('order') -> data($order_info) -> add();
-
-        // //向维修人员发送审核信息
-        // $openid = 'oAFMW1G4JcOVZwxvlSI-yxrX7daQ';
-        // $randomid = $randomString;
-        // $repairtor = '待确定';
-        // $tourl = 'http://repaire.dnpuzi.com/home/index/getOrderInfo?id=' . $orderid;
-        // $this -> sendTmlMsg($openid, $randomid, $repairtor, $tourl);
-        // //结束
-
         //ajax返回给页面参数
-        $this -> ajaxReturn('维修申请提交成功，我们会尽快联系您！');
+        $data['msg'] = '维修申请提交成功，我们会尽快联系您！';
+        $data['order_id'] = $order_id;
+        $this -> ajaxReturn($data);
+    }
+
+    public function noticeRepairtor() {
+        $map['id'] = I('post.id');
+        $order_info = M('order') -> where($map) -> find();
+
+        $openid = 'oAFMW1HdfgsXLPSEOdZwELDhVdTU';
+        $randomid = $order_info['randomid'];
+        $repairtor = '待确定';
+        $tourl = 'http://repaire.dnpuzi.com/home/index/getOrderInfo?id=' . I('post.id');
+        $this -> sendWxTmlMsg($openid, $randomid, $repairtor, $tourl);
     }
 
     public function getOrderList() { //用户首页获取他的订单信息
@@ -117,11 +144,14 @@ class IndexController extends Controller {
     public function getOrderInfo() { //维修人员获取订单信息
     	$map['id'] = I('get.id');
     	$order_info = M('order') -> where($map) -> find();
+        $user['openid'] = $order_info['openid']; //查询订单用户的信息
+        $user_info  = M('user') -> where($user) -> find();
+        $order_info['tel'] = $user_info['tel'];
     	$this -> assign('data', $order_info);
     	$this -> display('getOrderInfo');
     }
 
-    public function repairtorEnsureOrder() {
+    public function repairtorEnsureOrder() { //维修人员确认订单去维修
     	$map['id'] = I('post.orderid');
     	$map['repairtor'] = I('post.repairtor');
     	$result = M('order') -> save($map);
@@ -129,7 +159,7 @@ class IndexController extends Controller {
         $this -> sendTmlMsg(I('post.openid'), I('post.randomid'), I('post.repairtor'));
     }
 
-    public function sendTmlMsg($openid, $randomid, $repairtor, $tourl) { //发送模板信息
+    public function sendTmlMsg($openid, $randomid, $repairtor, $tourl) { //发送模板信息 to user
         $token = $this -> getToken();
         $url = 'https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=' . $token;
         $array = array(
@@ -145,7 +175,31 @@ class IndexController extends Controller {
             ),
         );
         $postJson = json_encode($array);
-        // var_dump($postJson);die;
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL,$url);
+        curl_setopt($ch2, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $postJson);
+        $output = curl_exec($ch);
+        curl_close($ch);
+    }
+
+    public function sendWxTmlMsg($openid, $randomid, $repairtor, $tourl) { //发送模板信息 to us
+        $token = $this -> getToken();
+        $url = 'https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=' . $token;
+        $array = array(
+            'touser' => '' . $openid,
+            'template_id' => 'cjg2rYFQpLo6Cqao35ZoOy6lBTVMbIsJs6668wdp8cw',
+            'url' => '' . $tourl,
+            'data' => array(
+                'first' => array( 'value' => '有会员提交了维修申请，快去审核', 'color' => '#173177' ),
+                'track_number' => array( 'value' => '' . $randomid, 'color' => '#173177' ),
+                'asp_name' => array( 'value' => '' . $repairtor, 'color' => '#df5e5e' ),
+                'asp_tel' => array( 'value' => '无', 'color' => '#173177' ),
+                'remark' => array( 'value' => '无', 'color' => '#4c57e4' ),
+            ),
+        );
+        $postJson = json_encode($array);
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL,$url);
         curl_setopt($ch2, CURLOPT_RETURNTRANSFER, 1);

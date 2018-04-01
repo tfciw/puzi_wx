@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>showUserList</title>
+</head>
+<body>
+	<table>
+		<tr>
+			<td>微信名</td>
+			<td>用户名</td>
+			<td>地址</td>
+			<td>电话</td>
+			<td>操作</td>
+		</tr>
+	</table>
+	<?php foreach($data as $data): ?>
+		<tr>
+			<td>{$data.wxname}</td>
+			<td>{$data.username}</td>
+			<td>{$data.address}</td>
+			<td>{$data.tel}</td>
+			<td><a href="{:U('getUserInfo?id='.$data['id'])}">查看</a></td>
+		</tr>
+	<?php endforeach; ?>
+</body>
+</html>
