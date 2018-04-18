@@ -128,7 +128,7 @@ class IndexController extends Controller {
         $map['id'] = I('post.id');
         $order_info = M('order') -> where($map) -> find();
 
-        $openid = 'oAFMW1HdfgsXLPSEOdZwELDhVdTU';
+        $openid = 'oAFMW1G4JcOVZwxvlSI-yxrX7daQ';
         $randomid = $order_info['randomid'];
         $repairtor = '待确定';
         $tourl = 'http://repaire.dnpuzi.com/home/index/getOrderInfo?id=' . I('post.id');
@@ -155,7 +155,6 @@ class IndexController extends Controller {
         $map['id'] = I('post.orderid');
         $map['repairtor'] = I('post.repairtor');
         $result = M('order') -> save($map);
-
         $this -> sendTmlMsg(I('post.openid'), I('post.randomid'), I('post.repairtor'));
     }
 
@@ -164,13 +163,12 @@ class IndexController extends Controller {
         $url = 'https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=' . $token;
         $array = array(
             'touser' => '' . $openid,
-            'template_id' => 'cjg2rYFQpLo6Cqao35ZoOy6lBTVMbIsJs6668wdp8cw',
+            'template_id' => 'p9LvjBRPIYWtiuF8zABJxg3y3DPLA7k-6pIfnBmnQpE',
             'url' => '' . $tourl,
             'data' => array(
-                'first' => array( 'value' => '您好，您提交的维修申请已审核', 'color' => '#173177' ),
-                'track_number' => array( 'value' => '' . $randomid, 'color' => '#173177' ),
-                'asp_name' => array( 'value' => '' . $repairtor, 'color' => '#df5e5e' ),
-                'asp_tel' => array( 'value' => '18008385331', 'color' => '#173177' ),
+                'first' => array( 'value' => '您好，您提交的维修申请已审核，维修单号：' . $randomid , 'color' => '#173177' ),
+                'keyword1' => array( 'value' => '' . $randomid, 'color' => '#173177' ),
+                'keyword2' => array( 'value' => '' . $repairtor, 'color' => '#df5e5e' ),
                 'remark' => array( 'value' => '如有问题请咨询18008385331', 'color' => '#4c57e4' ),
             ),
         );
@@ -195,8 +193,8 @@ class IndexController extends Controller {
                 'first' => array( 'value' => '有会员提交了维修申请，快去审核', 'color' => '#173177' ),
                 'track_number' => array( 'value' => '' . $randomid, 'color' => '#173177' ),
                 'asp_name' => array( 'value' => '' . $repairtor, 'color' => '#df5e5e' ),
-                'asp_tel' => array( 'value' => '无', 'color' => '#173177' ),
-                'remark' => array( 'value' => '无', 'color' => '#4c57e4' ),
+                'asp_tel' => array( 'value' => '', 'color' => '#173177' ),
+                'remark' => array( 'value' => '', 'color' => '#4c57e4' ),
             ),
         );
         $postJson = json_encode($array);
